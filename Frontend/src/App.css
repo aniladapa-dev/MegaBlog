@@ -1,0 +1,6 @@
+/* Empty to prevent layout centering from the default React-Vite template */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
