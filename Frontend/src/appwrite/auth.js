@@ -1,5 +1,7 @@
 export class AuthService {
-    baseUrl = "http://localhost:8080/api/auth";
+    baseUrl = import.meta.env.VITE_BACKEND_URL 
+        ? `${import.meta.env.VITE_BACKEND_URL}/api/auth` 
+        : "http://localhost:8080/api/auth";
 
     async createAccount({ email, password, name }) {
         try {

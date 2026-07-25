@@ -22,9 +22,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    @org.springframework.beans.factory.annotation.Value("${app.oauth2.frontend-redirect-url:http://localhost:5173/oauth2/callback}")
+    private String frontendRedirectUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                         Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
@@ -51,7 +54,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String token = tokenProvider.generateToken(email);
 
         // Redirect to React frontend callback route
-        String targetUrl = "http://localhost:5173/oauth2/callback?token=" + token;
+        String targetUrl = frontendRedirectUrl + "?token=" + token;
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }

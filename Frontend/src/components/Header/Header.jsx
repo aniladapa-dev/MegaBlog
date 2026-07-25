@@ -27,7 +27,8 @@ function Header(){
 
         const delayDebounceFn = setTimeout(async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/auth/users/search?query=${encodeURIComponent(userSearchQuery)}`, {
+                const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+                const response = await fetch(`${backendUrl}/api/auth/users/search?query=${encodeURIComponent(userSearchQuery)}`, {
                     headers: {
                         "Content-Type": "application/json",
                         ...(sessionStorage.getItem("token") ? { "Authorization": `Bearer ${sessionStorage.getItem("token")}` } : {})

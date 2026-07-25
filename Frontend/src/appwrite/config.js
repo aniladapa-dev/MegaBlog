@@ -1,6 +1,10 @@
 export class Service {
-  baseUrl = "http://localhost:8080/api/posts";
-  fileUrl = "http://localhost:8080/api/files";
+  baseUrl = import.meta.env.VITE_BACKEND_URL 
+    ? `${import.meta.env.VITE_BACKEND_URL}/api/posts` 
+    : "http://localhost:8080/api/posts";
+  fileUrl = import.meta.env.VITE_BACKEND_URL 
+    ? `${import.meta.env.VITE_BACKEND_URL}/api/files` 
+    : "http://localhost:8080/api/files";
 
   // helper to get the JWT token
   getHeaders() {
