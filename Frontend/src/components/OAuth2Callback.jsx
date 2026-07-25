@@ -13,8 +13,9 @@ function OAuth2Callback() {
         const token = searchParams.get("token");
 
         if (token) {
-            // Save token
+            // Save token and clear stale data from previous session/database
             sessionStorage.setItem("token", token);
+            localStorage.removeItem("recentlyViewed");
 
             // Fetch current user details
             authService.getCurrentUser()

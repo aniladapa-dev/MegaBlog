@@ -27,9 +27,10 @@ public class FileStorageService {
 
     public FileStorageService(
             @Value("${file.upload-dir:uploads}") String uploadDir,
-            @Value("${cloudinary.cloud-name:}") String cloudName,
-            @Value("${cloudinary.api-key:}") String apiKey,
-            @Value("${cloudinary.api-secret:}") String apiSecret) {
+            @Value("${CLOUDINARY_URL:${cloudinary.url:}}") String cloudinaryUrl,
+            @Value("${CLOUDINARY_CLOUD_NAME:${cloudinary.cloud-name:}}") String cloudName,
+            @Value("${CLOUDINARY_API_KEY:${cloudinary.api-key:}}") String apiKey,
+            @Value("${CLOUDINARY_API_SECRET:${cloudinary.api-secret:}}") String apiSecret) {
         
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
 
@@ -39,17 +40,19 @@ public class FileStorageService {
             throw new RuntimeException("Could not create the directory where the uploaded files will be stored.", ex);
         }
 
-        String cloudinaryUrl = System.getenv("CLOUDINARY_URL");
-        if (cloudinaryUrl != null && !cloudinaryUrl.isEmpty()) {
-            this.cloudinary = new Cloudinary(cloudinaryUrl);
-        } else if (cloudName != null && !cloudName.isEmpty() && apiKey != null && !apiKey.isEmpty() && apiSecret != null && !apiSecret.isEmpty()) {
+        if (cloudinaryUrl != null && !cloudinaryUrl.trim().isEmpty()) {
+            System.out.println("Initializing Cloudinary from CLOUDINARY_URL...");
+            this.cloudinary = new Cloudinary(cloudinaryUrl.trim());
+        } else if (cloudName != null && !cloudName.trim().isEmpty() && apiKey != null && !apiKey.trim().isEmpty() && apiSecret != null && !apiSecret.trim().isEmpty()) {
+            System.out.println("Initializing Cloudinary from cloud_name: " + cloudName);
             this.cloudinary = new Cloudinary(ObjectUtils.asMap(
-                    "cloud_name", cloudName,
-                    "api_key", apiKey,
-                    "api_secret", apiSecret,
+                    "cloud_name", cloudName.trim(),
+                    "api_key", apiKey.trim(),
+                    "api_secret", apiSecret.trim(),
                     "secure", true
             ));
         } else {
+            System.out.println("Cloudinary credentials not configured. Using local storage fallback.");
             this.cloudinary = null;
         }
     }
@@ -57,7 +60,7 @@ public class FileStorageService {
     public String storeFile(MultipartFile file) {
         if (this.cloudinary != null) {
             try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", "megablog"));
                 return (String) uploadResult.get("secure_url");
             } catch (IOException e) {
                 throw new RuntimeException("Failed to upload file to Cloudinary", e);

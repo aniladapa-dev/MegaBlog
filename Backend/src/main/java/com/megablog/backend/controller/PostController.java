@@ -84,9 +84,20 @@ public class PostController {
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostRequest request) {
         User user = getAuthenticatedUser();
 
+        String slug = request.getSlug();
+        if (slug == null || slug.trim().isEmpty()) {
+            slug = request.getTitle().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        }
+        
+        String originalSlug = slug;
+        int count = 1;
+        while (postRepository.findBySlug(slug).isPresent()) {
+            slug = originalSlug + "-" + count++;
+        }
+
         Post post = Post.builder()
                 .title(request.getTitle())
-                .slug(request.getSlug())
+                .slug(slug)
                 .content(request.getContent())
                 .featuredImage(request.getFeaturedImage())
                 .status(request.getStatus())
@@ -117,7 +128,17 @@ public class PostController {
         }
 
         post.setTitle(request.getTitle());
-        post.setSlug(request.getSlug());
+        
+        String newSlug = request.getSlug();
+        if (newSlug != null && !newSlug.trim().isEmpty() && !newSlug.equals(post.getSlug())) {
+            String originalSlug = newSlug;
+            int count = 1;
+            while (postRepository.findBySlug(newSlug).filter(p -> !p.getId().equals(post.getId())).isPresent()) {
+                newSlug = originalSlug + "-" + count++;
+            }
+            post.setSlug(newSlug);
+        }
+
         post.setContent(request.getContent());
         post.setFeaturedImage(request.getFeaturedImage());
         post.setStatus(request.getStatus());

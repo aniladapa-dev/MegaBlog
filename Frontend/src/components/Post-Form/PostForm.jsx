@@ -53,9 +53,20 @@ function PostForm({ post }) {
     return () => subscription.unsubscribe();
   }, [watch, slugTransform, setValue]);
 
+  const [errorMsg, setErrorMsg] = React.useState("");
+
   //  Submit handler (create & update)
   const submit = async (data) => {
     try {
+      setErrorMsg("");
+
+      // Validate that content is not empty
+      const plainText = data.content ? data.content.replace(/<[^>]*>/g, '').trim() : "";
+      if (!plainText) {
+        setErrorMsg("Content is required! Please type your article content in the editor.");
+        return;
+      }
+
       // ✏️ UPDATE POST
       if (post) {
         const file = data.image?.[0]
@@ -100,6 +111,7 @@ function PostForm({ post }) {
       }
     } catch (error) {
       console.error("Post submit error:", error);
+      setErrorMsg(error.message || "Failed to submit post. Please check all fields.");
     }
   };
 
@@ -165,6 +177,12 @@ function PostForm({ post }) {
         />
         </div>
 
+
+        {errorMsg && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 text-sm font-semibold text-center animate-fade-in">
+            {errorMsg}
+          </div>
+        )}
 
         <Button
           type="submit"

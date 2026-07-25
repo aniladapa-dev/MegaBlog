@@ -19,6 +19,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -52,11 +56,19 @@ public class SecurityConfig {
                 // Swagger & OpenAPI
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // Authentication APIs
-                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/users/**").permitAll()
+                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/users/**", "/error").permitAll()
                 // Public GET endpoints for Posts and Files
-                .requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/files/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/**", "/api/files/**").permitAll()
+                // Permit all CORS preflight OPTIONS requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(exception -> exception
+                .defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    new AntPathRequestMatcher("/api/**")
+                )
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2SuccessHandler)

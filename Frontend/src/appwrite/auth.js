@@ -41,8 +41,16 @@ export class AuthService {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Invalid credentials");
+                let errorMessage = "Invalid email or password";
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (e) {
+                    // Response body was empty or not JSON
+                }
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();

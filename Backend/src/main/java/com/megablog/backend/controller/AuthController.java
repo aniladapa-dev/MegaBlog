@@ -54,7 +54,8 @@ public class AuthController {
     @PostMapping("/signup")
     @Operation(summary = "Register a new user account")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
-        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+        String cleanEmail = signupRequest.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmailIgnoreCase(cleanEmail)) {
             Map<String, String> err = new HashMap<>();
             err.put("message", "Email address is already in use!");
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
@@ -62,8 +63,8 @@ public class AuthController {
 
         // Creating user's account
         User user = User.builder()
-                .name(signupRequest.getName())
-                .email(signupRequest.getEmail())
+                .name(signupRequest.getName().trim())
+                .email(cleanEmail)
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .role("ROLE_USER")
                 .provider("LOCAL")
@@ -74,7 +75,7 @@ public class AuthController {
         // Auto-login after registration
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        signupRequest.getEmail(),
+                        cleanEmail,
                         signupRequest.getPassword()
                 )
         );
@@ -88,20 +89,38 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Authenticate user and generate JWT token")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+        String cleanEmail = loginRequest.getEmail().trim().toLowerCase();
+        java.util.Optional<User> userOpt = userRepository.findByEmailIgnoreCase(cleanEmail);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
+        if (userOpt.isPresent()) {
+            User existingUser = userOpt.get();
+            if ("GOOGLE".equalsIgnoreCase(existingUser.getProvider()) && (existingUser.getPassword() == null || existingUser.getPassword().isEmpty())) {
+                Map<String, String> err = new HashMap<>();
+                err.put("message", "This account was created with Google. Please click 'Sign in with Google' to log in.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+            }
+        }
 
-        User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found after authentication"));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            cleanEmail,
+                            loginRequest.getPassword()
+                    )
+            );
 
-        return ResponseEntity.ok(new AuthResponse(jwt, "Bearer", convertToUserResponse(user)));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+
+            User user = userOpt.orElseGet(() -> userRepository.findByEmailIgnoreCase(cleanEmail)
+                    .orElseThrow(() -> new RuntimeException("User not found after authentication")));
+
+            return ResponseEntity.ok(new AuthResponse(jwt, "Bearer", convertToUserResponse(user)));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            Map<String, String> err = new HashMap<>();
+            err.put("message", "Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
+        }
     }
 
     @GetMapping("/me")

@@ -37,9 +37,15 @@ function Home() {
 
         appwriteService.getPosts(params).then((posts) => {
             if (posts) {
-                setPosts(posts.documents || [])
+                const docs = posts.documents || [];
+                setPosts(docs);
+                // If database is completely empty and no filters are active, clear stale local recentlyViewed cache
+                if (docs.length === 0 && !category && !search) {
+                    localStorage.removeItem('recentlyViewed');
+                    setRecentlyViewed([]);
+                }
             }
-        })
+        });
     }
 
     useEffect(() => {

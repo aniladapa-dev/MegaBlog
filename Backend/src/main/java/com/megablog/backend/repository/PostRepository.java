@@ -18,8 +18,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByUser(User user);
     
     @Query("SELECT p FROM Post p WHERE p.status = 'active' " +
-           "AND (:category IS NULL OR p.category = :category) " +
-           "AND (:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (COALESCE(:category, '') = '' OR p.category = :category) " +
+           "AND (COALESCE(:search, '') = '' OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%')))")
     List<Post> findActivePosts(@Param("category") String category, @Param("search") String search);
 
     @org.springframework.transaction.annotation.Transactional
