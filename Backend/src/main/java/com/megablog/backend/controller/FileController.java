@@ -33,7 +33,11 @@ public class FileController {
         Map<String, String> response = new HashMap<>();
         response.put("$id", fileName);
         response.put("fileName", fileName);
-        response.put("fileUrl", "/api/files/" + fileName);
+        if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
+            response.put("fileUrl", fileName);
+        } else {
+            response.put("fileUrl", "/api/files/" + fileName);
+        }
 
         return ResponseEntity.ok(response);
     }

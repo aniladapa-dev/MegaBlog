@@ -334,11 +334,17 @@ export class Service {
 
   getFileView(fileId) {
     if (!fileId) return null;
+    if (fileId.startsWith("http://") || fileId.startsWith("https://")) {
+      return fileId;
+    }
     return `${this.fileUrl}/${fileId}`;
   }
 
   getFilePreview(fileId) {
     if (!fileId) return null;
+    if (fileId.startsWith("http://") || fileId.startsWith("https://")) {
+      return fileId;
+    }
     return `${this.fileUrl}/${fileId}`;
   }
 }
