@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import { useDispatch } from 'react-redux'
-import authService from './appwrite/auth'
+import authService from "./services/auth";
 import { login, logout } from './store/authSlice'
 import { Outlet } from 'react-router-dom'
 import Footer from './components/Footer/Footer'
@@ -10,7 +10,6 @@ import Header from './components/Header/Header'
 
 function App() {
   
-  //console.log(import.meta.env.VITE_APPWRITE_URL) ;
   const [loading, setLoading] = useState(true)
   const dispatch = useDispatch()
 

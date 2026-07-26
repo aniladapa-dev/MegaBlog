@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { login as authLogin } from "../store/authSlice";
-import authService from "../appwrite/auth";
+import authService from "../services/auth";
 
 function OAuth2Callback() {
     const [searchParams] = useSearchParams();

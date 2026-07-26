@@ -209,22 +209,28 @@ export class Service {
   }
 
   async deleteComment(commentId) {
-    try {
-      const response = await fetch(`http://localhost:8080/api/comments/${commentId}`, {
+  try {
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
+    const response = await fetch(
+      `${backendUrl}/api/comments/${commentId}`,
+      {
         method: "DELETE",
         headers: this.getHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete comment");
       }
+    );
 
-      return true;
-    } catch (error) {
-      console.error("Service deleteComment error:", error);
-      return false;
+    if (!response.ok) {
+      throw new Error("Failed to delete comment");
     }
+
+    return true;
+  } catch (error) {
+    console.error("Service deleteComment error:", error);
+    return false;
   }
+}
 
   // BOOKMARKS -------------------------
 

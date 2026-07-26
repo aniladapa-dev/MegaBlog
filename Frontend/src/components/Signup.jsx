@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import authService from '../appwrite/auth.js'
+import authService from '../services/auth.js'
 import {Link ,useNavigate} from 'react-router-dom'
 import {login} from '../store/authSlice.js'
 import {Button, Input, Logo} from './index.js'
@@ -25,6 +25,8 @@ function Signup() {
             setError(error.message)
         }
     }
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
     return (
         <div className="flex items-center justify-center w-full min-h-[70vh]">
@@ -89,7 +91,7 @@ function Signup() {
 
                 <button
                     type="button"
-                    onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
+                    onClick={() => window.location.href = `${backendUrl}/oauth2/authorization/google`}
                     className="w-full mt-4 flex items-center justify-center gap-3 bg-gray-950/70 border border-gray-850 hover:border-gray-800 text-gray-200 font-semibold py-2.5 rounded-xl hover:bg-gray-900/60 hover:cursor-pointer transition duration-200 shadow-md text-xs"
                 >
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />

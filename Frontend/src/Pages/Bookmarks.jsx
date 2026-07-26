@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react"
 import { Container, PostCard } from "../components"
-import appwriteService from "../appwrite/config"
+import postService from "../services/config"
 
 function Bookmarks() {
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        appwriteService.getBookmarks().then((postsResponse) => {
+        postService.getBookmarks().then((postsResponse) => {
             if (postsResponse) {
                 setPosts(postsResponse.documents || [])
             }

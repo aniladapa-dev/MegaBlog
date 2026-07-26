@@ -1,4 +1,4 @@
-import appwriteService from "../appwrite/config"
+import postService from "../services/config"
 import React from "react"
 import { Link } from "react-router-dom"
 
@@ -33,7 +33,7 @@ function PostCard({
             <div className="w-full h-48 mb-4 overflow-hidden rounded-xl relative bg-gray-100 dark:bg-gray-950">
               {featuredImage ? (
                 <img
-                  src={featuredImage.startsWith('http') ? featuredImage : appwriteService.getFileView(featuredImage)}
+                  src={featuredImage.startsWith('http') ? featuredImage : postService.getFileView(featuredImage)}
                   alt={title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />

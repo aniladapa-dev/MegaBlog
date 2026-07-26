@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { useSearchParams, Link } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { Container, PostCard } from "../components"
-import appwriteService from "../appwrite/config"
+import postService from "../services/config"
 
 function AllPosts() {
     const [posts, setPosts] = useState([])
@@ -23,7 +23,7 @@ function AllPosts() {
         if (category) params.category = category;
         if (search) params.search = search;
 
-        appwriteService.getPosts(params).then((postsData) => {
+        postService.getPosts(params).then((postsData) => {
             if (postsData) {
                 setPosts(postsData.documents || [])
             }

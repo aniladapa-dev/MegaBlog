@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Container, PostCard } from '../components'
-import appwriteService from '../appwrite/config'
-import authService from '../appwrite/auth'
+import postService from '../services/config'
+import authService from '../services/auth'
 import { login, logout } from '../store/authSlice'
 
 function Profile() {
@@ -71,7 +71,7 @@ function Profile() {
             setLoading(true)
             try {
                 // Fetch user posts
-                const allPosts = await appwriteService.getPosts({})
+                const allPosts = await postService.getPosts({})
                 if (allPosts && allPosts.documents) {
                     const myPosts = allPosts.documents.filter(
                         (p) => String(p.userId || p.userid) === String(targetProfileUserId)
@@ -81,7 +81,7 @@ function Profile() {
 
                 // If viewing own profile, fetch bookmarks
                 if (isOwnProfile) {
-                    const bookmarked = await appwriteService.getBookmarks()
+                    const bookmarked = await postService.getBookmarks()
                     if (bookmarked && bookmarked.documents) {
                         setBookmarkedPosts(bookmarked.documents)
                     }

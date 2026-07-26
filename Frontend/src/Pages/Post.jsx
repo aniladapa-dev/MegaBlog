@@ -1,6 +1,6 @@
 // import React, { useEffect, useState } from "react";
 // import { Link, useNavigate, useParams } from "react-router-dom";
-// import appwriteService from "../appwrite/config";
+// import postService from "../services/config";
 // import { Button, Container } from "../components";
 // import parse from "html-react-parser";
 // import { useSelector } from "react-redux";
@@ -18,7 +18,7 @@
 
 //     useEffect(() => {
 //         if (slug) {
-//             appwriteService.getPost(slug).then((post) => {
+//             postService.getPost(slug).then((post) => {
 //                 if (post) setPost(post);
 //                 else navigate("/");
 //             });
@@ -35,7 +35,7 @@
 
 //         // 1️⃣ Generate preview URL
 //     const previewUrl = post?.featuredImage
-//     ? appwriteService.getFilePreview(post.featuredImage)
+//     ? postService.getFilePreview(post.featuredImage)
 //     : null;
 
 //     // 2️⃣ Debug logs
@@ -48,9 +48,9 @@
 
 
 //     const deletePost = () => {
-//         appwriteService.deletePost(post.$id).then((status) => {
+//         postService.deletePost(post.$id).then((status) => {
 //             if (status) {
-//                 appwriteService.deleteFile(post.featuredImage);
+//                 postService.deleteFile(post.featuredImage);
 //                 navigate("/");
 //             }
 //         });
@@ -60,7 +60,7 @@
 //     // console.log("FEATURED IMAGE TYPE:", typeof post.featuredImage);
 
 //     // console.log("FEATURED IMAGE ID:", post.featuredImage);
-//     // console.log("IMAGE URL:", appwriteService.getFilePreview(post.featuredImage));
+//     // console.log("IMAGE URL:", postService.getFilePreview(post.featuredImage));
 
    
 
@@ -111,7 +111,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import appwriteService from "../appwrite/config";
+import postService from "../services/config";
 import { Button, Container } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
@@ -138,7 +138,7 @@ export default function Post() {
 
     useEffect(() => {
         if (slug) {
-            appwriteService.getPost(slug).then((dbPost) => {
+            postService.getPost(slug).then((dbPost) => {
                 if (dbPost) {
                     setPost(dbPost);
 
@@ -155,20 +155,20 @@ export default function Post() {
                     const targetId = dbPost.id || dbPost.slug || dbPost.$id || slug;
 
                     // Fetch likes count and user liked status
-                    appwriteService.getLikeStatus(targetId).then((status) => {
+                    postService.getLikeStatus(targetId).then((status) => {
                         if (status) {
                             setLiked(status.liked);
                             setLikesCount(status.likesCount);
                         }
                     });
                     // Fetch comments
-                    appwriteService.getComments(targetId).then((commentsList) => {
+                    postService.getComments(targetId).then((commentsList) => {
                         if (Array.isArray(commentsList)) {
                             setComments(commentsList);
                         }
                     });
                     // Fetch bookmark status
-                    appwriteService.getBookmarkStatus(targetId).then((status) => {
+                    postService.getBookmarkStatus(targetId).then((status) => {
                         if (status) {
                             setBookmarked(status.bookmarked);
                         }
@@ -279,9 +279,9 @@ export default function Post() {
 
     const deletePost = () => {
         const targetId = post?.id || post?.slug || post?.$id || slug;
-        appwriteService.deletePost(targetId).then((status) => {
+        postService.deletePost(targetId).then((status) => {
             if (status) {
-                appwriteService.deleteFile(post.featuredImage);
+                postService.deleteFile(post.featuredImage);
                 navigate("/");
             }
         });
@@ -293,7 +293,7 @@ export default function Post() {
             return;
         }
         const targetId = post?.id || post?.slug || post?.$id || slug;
-        appwriteService.toggleLike(targetId).then((status) => {
+        postService.toggleLike(targetId).then((status) => {
             if (status) {
                 setLiked(status.liked);
                 setLikesCount(status.likesCount);
@@ -307,7 +307,7 @@ export default function Post() {
             return;
         }
         const targetId = post?.id || post?.slug || post?.$id || slug;
-        appwriteService.toggleBookmark(targetId).then((status) => {
+        postService.toggleBookmark(targetId).then((status) => {
             if (status) {
                 setBookmarked(status.bookmarked);
             }
@@ -323,7 +323,7 @@ export default function Post() {
         if (!commentInput.trim()) return;
 
         const targetId = post?.id || post?.slug || post?.$id || slug;
-        appwriteService.addComment(targetId, commentInput).then((newComment) => {
+        postService.addComment(targetId, commentInput).then((newComment) => {
             if (newComment) {
                 setComments((prev) => [newComment, ...prev]);
                 setCommentInput("");
@@ -334,7 +334,7 @@ export default function Post() {
     const handleDeleteComment = (commentId) => {
         if (!userData) return;
         if (window.confirm("Are you sure you want to delete this comment?")) {
-            appwriteService.deleteComment(commentId).then((success) => {
+            postService.deleteComment(commentId).then((success) => {
                 if (success) {
                     setComments((prev) => prev.filter((c) => c.id !== commentId));
                 }
@@ -351,7 +351,7 @@ export default function Post() {
             <Container>
                 <div className="w-full flex justify-center mb-6 relative border border-gray-800 rounded-2xl p-3 bg-gray-950/40 shadow-lg">
                     <img
-                        src={appwriteService.getFileView(post.featuredImage)}
+                        src={postService.getFileView(post.featuredImage)}
                         alt={post.title}
                         className="rounded-xl max-h-[400px] object-cover"
                     />

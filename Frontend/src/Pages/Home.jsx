@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import appwriteService from "../appwrite/config";
+import postService from "../services/config";
 import { Container, PostCard } from '../components'
 
 function Home() {
@@ -35,7 +35,7 @@ function Home() {
         if (category) params.category = category;
         if (search) params.search = search;
 
-        appwriteService.getPosts(params).then((posts) => {
+        postService.getPosts(params).then((posts) => {
             if (posts) {
                 const docs = posts.documents || [];
                 setPosts(docs);
@@ -68,7 +68,7 @@ function Home() {
         }
 
         if (authStatus) {
-            appwriteService.getBookmarks().then((res) => {
+            postService.getBookmarks().then((res) => {
                 if (res && res.documents) {
                     setBookmarksCount(res.documents.length);
                 }
